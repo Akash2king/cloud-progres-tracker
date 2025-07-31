@@ -1,0 +1,2111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2-Month Cybersecurity & Cloud Roadmap Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .task-card {
+            transition: all 0.3s ease;
+        }
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .completed {
+            opacity: 0.7;
+        }
+        .priority-high {
+            border-left: 4px solid #ef4444;
+        }
+        .priority-medium {
+            border-left: 4px solid #f59e0b;
+        }
+        .priority-low {
+            border-left: 4px solid #10b981;
+        }
+        .week-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .bg-week1 { background-color: #3b82f6; }
+        .bg-week2 { background-color: #10b981; }
+        .bg-week3 { background-color: #f59e0b; }
+        .bg-week4 { background-color: #ef4444; }
+        .bg-week5 { background-color: #8b5cf6; }
+        .bg-week6 { background-color: #ec4899; }
+        .bg-week7 { background-color: #06b6d4; }
+        .bg-week8 { background-color: #84cc16; }
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        .task-modal {
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-slate-200">
+                <div class="flex items-center justify-center mb-4">
+                    <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-3 rounded-xl mr-4">
+                        <i class="fas fa-rocket text-white text-2xl"></i>
+                    </div>
+                    <h1 class="text-4xl font-bold text-slate-800">2-Month Cybersecurity & Cloud Roadmap</h1>
+                </div>
+                <p class="text-lg text-slate-600 mb-4">Track your progress through this comprehensive job-ready program</p>
+                <div class="flex flex-wrap justify-center gap-4 text-sm">
+                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium">Azure Focused</span>
+                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium">VAPT Specialist</span>
+                    <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full font-medium">Web Security Analyst</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Progress Overview -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Main Progress Ring -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
+                    <h2 class="text-xl font-bold text-slate-800 mb-4 text-center">Overall Progress</h2>
+                    <div class="flex justify-center my-4">
+                        <div class="relative">
+                            <svg width="180" height="180" class="progress-ring">
+                                <circle cx="90" cy="90" r="80" stroke="#e5e7eb" stroke-width="12" fill="transparent" />
+                                <circle id="progress-circle" cx="90" cy="90" r="80" stroke="#3b82f6" stroke-width="12" fill="transparent" stroke-dasharray="502.4" stroke-dashoffset="502.4" />
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="text-center">
+                                    <div id="progress-text" class="text-3xl font-bold text-slate-800">0%</div>
+                                    <div class="text-sm text-slate-500">Completed</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <p id="days-completed" class="text-lg font-medium text-slate-700">0 of 56 days completed</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Progress -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200 h-full">
+                    <h2 class="text-xl font-bold text-slate-800 mb-4">Weekly Progress</h2>
+                    <div class="h-64">
+                        <canvas id="weeklyProgressChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skill Progress -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-slate-200">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">Skill Development Progress</h2>
+            <div class="h-80">
+                <canvas id="skillProgressChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Roadmap Navigation -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-slate-200">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">Roadmap Navigation</h2>
+            <div class="flex flex-wrap gap-2 mb-6">
+                <button onclick="filterWeek('all')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-4 py-2 rounded-lg font-medium transition-colors duration-200 active">All Weeks</button>
+                <button onclick="filterWeek('1')" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-4 py-2 rounded-lg font-medium transition-colors duration-200 week-filter">Week 1</button>
+                <button onclick="filterWeek('2')" class="bg-green-100 hover:bg-green-200 text-green-800 px-4 py-2 rounded-lg font-medium transition-colors duration-200 week-filter">Week 2</button>
+                <button onclick="filterWeek('3')" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-4 py-2 rounded-lg font-medium transition-colors duration-200 week-filter">Week 3</button>
+                <button onclick="filterWeek('4')" class="bg-red-100 hover:bg-red-200 text-red-800 px-4 py-2 rounded-lg font-medium transition-colors duration-200 week-filter">Week 4</button>
+                <button onclick="filterWeek('5')" class="bg-purple-100 hover:bg-purple-200 text-purple-800 px-4 py-2 rounded-lg font-medium transition-colors duration-200 week-filter">Week 5</button>
+                <button onclick="filterWeek('6')" class="bg-pink-100 hover:bg-pink-200 text-pink-800 px-4 py-2 rounded-lg font-medium transition-colors duration-200 week-filter">Week 6</button>
+                <button onclick="filterWeek('7')" class="bg-cyan-100 hover:bg-cyan-200 text-cyan-800 px-4 py-2 rounded-lg font-medium transition-colors duration-200 week-filter">Week 7</button>
+                <button onclick="filterWeek('8')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 px-4 py-2 rounded-lg font-medium transition-colors duration-200 week-filter">Week 8</button>
+            </div>
+            
+            <div class="flex flex-wrap gap-2 mb-6">
+                <button onclick="filterCategory('all')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-4 py-2 rounded-lg font-medium transition-colors duration-200 active">All Categories</button>
+                <button onclick="filterCategory('cybersecurity')" class="bg-red-100 hover:bg-red-200 text-red-800 px-4 py-2 rounded-lg font-medium transition-colors duration-200 category-filter">Cybersecurity</button>
+                <button onclick="filterCategory('cloud')" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-4 py-2 rounded-lg font-medium transition-colors duration-200 category-filter">Cloud</button>
+                <button onclick="filterCategory('web')" class="bg-green-100 hover:bg-green-200 text-green-800 px-4 py-2 rounded-lg font-medium transition-colors duration-200 category-filter">Web Security</button>
+                <button onclick="filterCategory('project')" class="bg-purple-100 hover:bg-purple-200 text-purple-800 px-4 py-2 rounded-lg font-medium transition-colors duration-200 category-filter">Projects</button>
+            </div>
+        </div>
+
+        <!-- Task List -->
+        <div class="space-y-4 mb-8" id="task-container">
+            <!-- Tasks will be inserted here by JavaScript -->
+        </div>
+
+        <!-- Statistics Panel -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200 text-center">
+                <div class="text-3xl font-bold text-blue-600 mb-2" id="total-tasks">56</div>
+                <div class="text-slate-600">Total Tasks</div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200 text-center">
+                <div class="text-3xl font-bold text-green-600 mb-2" id="completed-tasks">0</div>
+                <div class="text-slate-600">Completed</div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200 text-center">
+                <div class="text-3xl font-bold text-orange-600 mb-2" id="in-progress">0</div>
+                <div class="text-slate-600">In Progress</div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200 text-center">
+                <div class="text-3xl font-bold text-purple-600 mb-2" id="days-left">56</div>
+                <div class="text-slate-600">Days Remaining</div>
+            </div>
+        </div>
+
+        <!-- Success Metrics -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200 mb-8">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">Success Metrics</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="flex items-center p-3 border border-slate-200 rounded-lg">
+                    <i class="fas fa-project-diagram text-blue-500 mr-3 text-xl"></i>
+                    <div>
+                        <div class="font-medium text-slate-800">15+ Projects</div>
+                        <div class="text-sm text-slate-500">In your portfolio</div>
+                    </div>
+                    <i id="metric-project" class="fas fa-check-circle text-green-500 ml-auto"></i>
+                </div>
+                <div class="flex items-center p-3 border border-slate-200 rounded-lg">
+                    <i class="fas fa-certificate text-green-500 mr-3 text-xl"></i>
+                    <div>
+                        <div class="font-medium text-slate-800">AZ-900 Certified</div>
+                        <div class="text-sm text-slate-500">Azure Fundamentals</div>
+                    </div>
+                    <i id="metric-cert" class="far fa-circle text-slate-300 ml-auto"></i>
+                </div>
+                <div class="flex items-center p-3 border border-slate-200 rounded-lg">
+                    <i class="fas fa-file-alt text-purple-500 mr-3 text-xl"></i>
+                    <div>
+                        <div class="font-medium text-slate-800">Professional Resume</div>
+                        <div class="text-sm text-slate-500">For each target role</div>
+                    </div>
+                    <i id="metric-resume" class="far fa-circle text-slate-300 ml-auto"></i>
+                </div>
+                <div class="flex items-center p-3 border border-slate-200 rounded-lg">
+                    <i class="fab fa-linkedin text-blue-600 mr-3 text-xl"></i>
+                    <div>
+                        <div class="font-medium text-slate-800">LinkedIn Optimized</div>
+                        <div class="text-sm text-slate-500">Ready for recruiters</div>
+                    </div>
+                    <i id="metric-linkedin" class="far fa-circle text-slate-300 ml-auto"></i>
+                </div>
+                <div class="flex items-center p-3 border border-slate-200 rounded-lg">
+                    <i class="fab fa-github text-slate-700 mr-3 text-xl"></i>
+                    <div>
+                        <div class="font-medium text-slate-800">GitHub Portfolio</div>
+                        <div class="text-sm text-slate-500">With documentation</div>
+                    </div>
+                    <i id="metric-github" class="far fa-circle text-slate-300 ml-auto"></i>
+                </div>
+                <div class="flex items-center p-3 border border-slate-200 rounded-lg">
+                    <i class="fas fa-comments text-yellow-500 mr-3 text-xl"></i>
+                    <div>
+                        <div class="font-medium text-slate-800">Mock Interviews</div>
+                        <div class="text-sm text-slate-500">For all target roles</div>
+                    </div>
+                    <i id="metric-interview" class="far fa-circle text-slate-300 ml-auto"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200 mb-8">
+            <div class="flex flex-wrap justify-center gap-4">
+                <button onclick="resetProgress()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center">
+                    <i class="fas fa-redo mr-2"></i> Reset Progress
+                </button>
+                <button onclick="markAllComplete()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center">
+                    <i class="fas fa-check-double mr-2"></i> Mark All Complete
+                </button>
+                <button onclick="saveProgress()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center">
+                    <i class="fas fa-save mr-2"></i> Save Progress
+                </button>
+                <button onclick="loadProgress()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center">
+                    <i class="fas fa-folder-open mr-2"></i> Load Progress
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Modal -->
+    <div id="task-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 id="modal-title" class="text-2xl font-bold text-slate-800"></h3>
+                    <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
+                </div>
+                <div id="modal-content" class="text-slate-600 leading-relaxed"></div>
+                <div class="mt-6 flex justify-between items-center">
+                    <div class="flex items-center">
+                        <span class="text-sm text-slate-500 mr-2">Status:</span>
+                        <select id="task-status" class="border border-slate-300 rounded-lg px-3 py-1 text-sm">
+                            <option value="not-started">Not Started</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                    <button onclick="saveTaskChanges()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200">
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Roadmap data
+        const roadmapData = [
+            {
+                id: 1,
+                week: 1,
+                day: 1,
+                title: "Cybersecurity Foundation",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Study OSI Model, TCP/IP fundamentals. Learn about CIA Triad, risk assessment basics. Article: 'Introduction to Cybersecurity' - SANS Institute",
+                resources: ["SANS Institute"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 2,
+                week: 1,
+                day: 1,
+                title: "Azure Fundamentals & Lab",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Setup Azure free account. Complete 'Azure Fundamentals' Module 1-2 (Microsoft Learn). Lab: Create first Azure VM",
+                resources: ["Azure Free Tier", "Microsoft Learn"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 3,
+                week: 1,
+                day: 2,
+                title: "Network Security Basics",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Study network protocols (HTTP/HTTPS, DNS, DHCP). Learn basic firewall concepts. Article: 'Network Security Fundamentals' - Cisco",
+                resources: ["Cisco"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 4,
+                week: 1,
+                day: 2,
+                title: "Azure Virtual Networks",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Learn Azure Virtual Networks basics. Setup Network Security Groups (NSGs). Lab: Configure basic Azure networking",
+                resources: ["Azure Documentation"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 5,
+                week: 1,
+                day: 3,
+                title: "Web Application Basics",
+                category: "web",
+                time: "2.5 hours",
+                description: "Understand HTTP request/response cycle. Learn about common web vulnerabilities. Article: 'OWASP Top 10 Overview'",
+                resources: ["OWASP"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 6,
+                week: 1,
+                day: 3,
+                title: "Azure App Service",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Learn Azure App Service basics. Deploy simple web app. Lab: Host static website on Azure",
+                resources: ["Azure Documentation"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 7,
+                week: 1,
+                day: 4,
+                title: "Introduction to Vulnerability Assessment",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Learn about types of vulnerabilities (CVE, CVSS). Study risk assessment methodologies. Article: 'Vulnerability Management Lifecycle'",
+                resources: ["Vulnerability Management"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 8,
+                week: 1,
+                day: 4,
+                title: "Nmap & Port Scanning",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Install Nmap on local machine. Learn basic port scanning techniques. Lab: Scan local network (with permission)",
+                resources: ["Nmap"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 9,
+                week: 1,
+                day: 5,
+                title: "Azure Security Fundamentals",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Learn Azure Active Directory basics. Study identity and access management. Article: 'Zero Trust Security Model'",
+                resources: ["Azure Documentation"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 10,
+                week: 1,
+                day: 5,
+                title: "Azure Security Center",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Learn Azure Security Center overview. Study basic security policies. Lab: Enable Azure Security Center",
+                resources: ["Azure Security Center"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 11,
+                week: 1,
+                day: 6,
+                title: "Penetration Testing Methodology",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Study OWASP Testing Guide overview. Learn penetration testing phases. Article: 'Penetration Testing Execution Standard (PTES)'",
+                resources: ["OWASP", "PTES"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 12,
+                week: 1,
+                day: 6,
+                title: "Kali Linux Setup",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Setup Kali Linux VM (VirtualBox). Review basic Linux commands. Lab: Configure penetration testing environment",
+                resources: ["Kali Linux", "VirtualBox"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 13,
+                week: 1,
+                day: 7,
+                title: "Weekly Review & Mini-Project",
+                category: "project",
+                time: "5 hours",
+                description: "Mini-Project: Create Azure infrastructure diagram. Document week's learning in personal notes. Complete TryHackMe 'Pre Security' path (free)",
+                resources: ["TryHackMe", "Azure Documentation"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 14,
+                week: 2,
+                day: 8,
+                title: "Azure Compute Services",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Study Virtual Machines, Scale Sets. Learn Azure Container Instances basics. Article: 'Cloud Computing Service Models (IaaS, PaaS, SaaS)'",
+                resources: ["Azure Documentation"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 15,
+                week: 2,
+                day: 8,
+                title: "Scalable Web Application",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Setup VM Scale Set. Learn basic load balancing. Lab: Deploy scalable web application",
+                resources: ["Azure Documentation"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 16,
+                week: 2,
+                day: 9,
+                title: "Web Application Security",
+                category: "web",
+                time: "2.5 hours",
+                description: "Study SQL Injection fundamentals. Learn Cross-Site Scripting (XSS) basics. Article: 'OWASP Top 10: Injection Flaws'",
+                resources: ["OWASP", "PortSwigger"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 17,
+                week: 2,
+                day: 9,
+                title: "DVWA & Burp Suite",
+                category: "web",
+                time: "2.5 hours",
+                description: "Practice on DVWA (free vulnerable app). Learn basic Burp Suite usage (free version). Lab: Identify SQL injection in practice app",
+                resources: ["DVWA", "Burp Suite"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 18,
+                week: 2,
+                day: 10,
+                title: "Azure Storage & Security",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Study Blob Storage, encryption at rest. Learn Access keys and SAS tokens. Article: 'Data Encryption Best Practices'",
+                resources: ["Azure Documentation"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 19,
+                week: 2,
+                day: 10,
+                title: "Secure Storage Implementation",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Configure secure storage account. Implement RBAC. Lab: Secure file upload system",
+                resources: ["Azure Documentation"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 20,
+                week: 2,
+                day: 11,
+                title: "Network Penetration Testing",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Learn Nmap advanced techniques. Study service enumeration. Article: 'Network Reconnaissance Techniques'",
+                resources: ["Nmap", "HackTheBox"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 21,
+                week: 2,
+                day: 11,
+                title: "HackTheBox Practice",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Practice on HackTheBox retired machines (free). Document scanning methodologies. Lab: Complete network enumeration exercise",
+                resources: ["HackTheBox"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 22,
+                week: 2,
+                day: 12,
+                title: "Azure DevOps Basics",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Learn Git fundamentals. Study Azure DevOps services overview. Article: 'CI/CD Pipeline Security'",
+                resources: ["Azure DevOps", "Git"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 23,
+                week: 2,
+                day: 12,
+                title: "CI/CD Pipeline",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Create Azure DevOps project. Learn basic pipeline creation. Lab: Deploy code through pipeline",
+                resources: ["Azure DevOps"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 24,
+                week: 2,
+                day: 13,
+                title: "Web Application Penetration Testing",
+                category: "web",
+                time: "2.5 hours",
+                description: "Study directory traversal, file inclusion. Learn authentication bypass techniques. Article: 'Web Application Security Testing'",
+                resources: ["OWASP", "WebGoat"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 25,
+                week: 2,
+                day: 13,
+                title: "WebGoat Practice",
+                category: "web",
+                time: "2.5 hours",
+                description: "Practice on WebGoat (free). Learn manual testing techniques. Lab: Exploit authentication vulnerabilities",
+                resources: ["WebGoat"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 26,
+                week: 2,
+                day: 14,
+                title: "Weekly Checkpoint",
+                category: "project",
+                time: "5 hours",
+                description: "Mini-Project: Security assessment of your Azure environment. Complete TryHackMe 'Web Fundamentals' path. Update learning portfolio",
+                resources: ["TryHackMe", "Azure Documentation"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 27,
+                week: 3,
+                day: 15,
+                title: "Infrastructure as Code",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Study ARM templates basics. Learn Terraform introduction. Article: 'Infrastructure as Code Security'",
+                resources: ["Azure Documentation", "Terraform"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 28,
+                week: 3,
+                day: 15,
+                title: "Automated Infrastructure",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Create ARM template for VM deployment. Use version control with Git. Lab: Automated infrastructure deployment",
+                resources: ["Azure Documentation", "Git"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 29,
+                week: 3,
+                day: 16,
+                title: "Advanced Web Security",
+                category: "web",
+                time: "2.5 hours",
+                description: "Study CSRF, XXE, deserialization attacks. Learn session management flaws. Article: 'Advanced Web Application Attacks'",
+                resources: ["OWASP", "PortSwigger"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 30,
+                week: 3,
+                day: 16,
+                title: "PortSwigger Academy",
+                category: "web",
+                time: "2.5 hours",
+                description: "Practice on PortSwigger Web Security Academy (free). Learn advanced Burp Suite techniques. Lab: Chain multiple vulnerabilities",
+                resources: ["PortSwigger Academy"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 31,
+                week: 3,
+                day: 17,
+                title: "Azure Security Services",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Study Key Vault, Security Center. Learn Azure Sentinel basics. Article: 'SIEM and Log Analysis'",
+                resources: ["Azure Documentation"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 32,
+                week: 3,
+                day: 17,
+                title: "Security Monitoring",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Configure security monitoring. Create custom security rules. Lab: Setup security incident detection",
+                resources: ["Azure Security Center"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 33,
+                week: 3,
+                day: 18,
+                title: "Exploitation Frameworks",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Study Metasploit basics (free version). Learn payload generation and handlers. Article: 'Ethical Hacking with Metasploit'",
+                resources: ["Metasploit", "TryHackMe"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 34,
+                week: 3,
+                day: 18,
+                title: "Metasploitable Practice",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Practice on Metasploitable VM. Document exploitation techniques. Lab: Complete controlled exploitation exercise",
+                resources: ["Metasploitable"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 35,
+                week: 3,
+                day: 19,
+                title: "Container Security",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Study Docker security fundamentals. Learn Azure Container Instances security. Article: 'Container Security Best Practices'",
+                resources: ["Docker", "Azure Documentation"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 36,
+                week: 3,
+                day: 19,
+                title: "Secure Container Deployment",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Scan containers for vulnerabilities. Secure container deployment. Lab: Deploy secure containerized application",
+                resources: ["Docker", "Azure Container Instances"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 37,
+                week: 3,
+                day: 20,
+                title: "Scripting for Security",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Learn Python for security automation. Study PowerShell for Azure management. Article: 'Automation in Cybersecurity'",
+                resources: ["Python", "PowerShell"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 38,
+                week: 3,
+                day: 20,
+                title: "Custom Security Tool",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Write vulnerability scanner script. Use Azure automation with PowerShell. Lab: Create custom security tool",
+                resources: ["Python", "PowerShell", "Azure Automation"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 39,
+                week: 3,
+                day: 21,
+                title: "Weekly Assessment",
+                category: "project",
+                time: "5 hours",
+                description: "Mini-Project: Automated security scanning solution. Complete TryHackMe 'Complete Beginner' path. Prepare presentation of learnings",
+                resources: ["TryHackMe", "Python"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 40,
+                week: 4,
+                day: 22,
+                title: "Compliance & Governance",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Study SOC 2, ISO 27001 basics. Learn Azure Policy and Blueprints. Article: 'Cloud Compliance Frameworks'",
+                resources: ["Azure Documentation"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 41,
+                week: 4,
+                day: 22,
+                title: "Compliance Dashboard",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Implement governance policies. Setup compliance reporting. Lab: Create compliance dashboard",
+                resources: ["Azure Policy", "Azure Blueprints"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 42,
+                week: 4,
+                day: 23,
+                title: "Wireless & Mobile Security",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Study WiFi security protocols. Learn mobile application security basics. Article: 'Mobile Security Testing Guide'",
+                resources: ["OWASP MASVS"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 43,
+                week: 4,
+                day: 23,
+                title: "Wireless Security Assessment",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Perform WiFi penetration testing (own network). Learn mobile security tools overview. Lab: Wireless security assessment",
+                resources: ["Aircrack-ng", "Kali Linux"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 44,
+                week: 4,
+                day: 24,
+                title: "Incident Response",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Study incident response lifecycle. Learn digital forensics basics. Article: 'Incident Response Planning'",
+                resources: ["NIST", "SANS"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 45,
+                week: 4,
+                day: 24,
+                title: "Azure Incident Response",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Learn Azure incident response tools. Study log analysis techniques. Lab: Simulate incident response",
+                resources: ["Azure Sentinel", "Log Analytics"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 46,
+                week: 4,
+                day: 25,
+                title: "Advanced Penetration Testing",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Study post-exploitation techniques. Learn privilege escalation. Article: 'Advanced Persistent Threats'",
+                resources: ["PTES", "MITRE ATT&CK"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 47,
+                week: 4,
+                day: 25,
+                title: "VulnHub Practice",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Practice on VulnHub VMs. Learn lateral movement techniques. Lab: Multi-stage penetration test",
+                resources: ["VulnHub", "Metasploit"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 48,
+                week: 4,
+                day: 26,
+                title: "Cloud Architecture Security",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Study secure cloud architecture patterns. Learn multi-tier application security. Article: 'Well-Architected Security Framework'",
+                resources: ["Azure Architecture Center"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 49,
+                week: 4,
+                day: 26,
+                title: "Secure Multi-tier App",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Design secure cloud solution. Document security architecture. Lab: Implement secure multi-tier app",
+                resources: ["Azure Architecture Center"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 50,
+                week: 4,
+                day: 27,
+                title: "Vulnerability Management",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Study OpenVAS setup and usage. Learn vulnerability prioritization. Article: 'Vulnerability Management Program'",
+                resources: ["OpenVAS", "Nessus"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 51,
+                week: 4,
+                day: 27,
+                title: "Vulnerability Assessment",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Conduct full vulnerability assessment. Generate professional reports. Lab: Complete vulnerability assessment project",
+                resources: ["OpenVAS", "Nessus"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 52,
+                week: 4,
+                day: 28,
+                title: "Monthly Review",
+                category: "project",
+                time: "5 hours",
+                description: "Major Project: Complete security audit of cloud environment. Update portfolio with all projects. Prepare for advanced phase",
+                resources: ["All previous resources"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 53,
+                week: 5,
+                day: 29,
+                title: "Azure Security Specialization",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Study Azure Security Center advanced features. Learn Azure Sentinel SOAR. Article: 'Security Operations in Cloud'",
+                resources: ["Azure Security Center", "Azure Sentinel"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 54,
+                week: 5,
+                day: 29,
+                title: "Threat Hunting",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Setup complete SIEM solution. Create custom detection rules. Lab: Threat hunting exercise",
+                resources: ["Azure Sentinel", "Log Analytics"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 55,
+                week: 5,
+                day: 30,
+                title: "Red Team Operations",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Study red team methodologies. Learn social engineering basics. Article: 'Red Team vs Blue Team'",
+                resources: ["MITRE ATT&CK", "Social Engineering Toolkit"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 56,
+                week: 5,
+                day: 30,
+                title: "Red Team Exercise",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Use phishing simulation tools. Learn red team tool chain. Lab: Controlled red team exercise",
+                resources: ["SET", "GoPhish"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 57,
+                week: 5,
+                day: 31,
+                title: "Cloud Cost & Security Optimization",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Study cost optimization strategies. Learn security vs performance trade-offs. Article: 'FinOps and Cloud Security'",
+                resources: ["Azure Cost Management", "Azure Advisor"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 58,
+                week: 5,
+                day: 31,
+                title: "Cost-effective Security",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Implement cost monitoring. Optimize security configurations. Lab: Cost-effective security solution",
+                resources: ["Azure Cost Management", "Azure Advisor"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 59,
+                week: 5,
+                day: 32,
+                title: "Advanced Reporting",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Learn executive security reporting. Study risk quantification. Article: 'Communicating Security to Business'",
+                resources: ["Risk Management", "Reporting"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 60,
+                week: 5,
+                day: 32,
+                title: "Professional Security Report",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Create executive dashboards. Develop risk assessment reports. Lab: Professional security report",
+                resources: ["Power BI", "Excel"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 61,
+                week: 5,
+                day: 33,
+                title: "Bug Bounty Preparation",
+                category: "web",
+                time: "2.5 hours",
+                description: "Study bug bounty platforms overview. Learn responsible disclosure. Article: 'Getting Started in Bug Bounty'",
+                resources: ["HackerOne", "Bugcrowd"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 62,
+                week: 5,
+                day: 33,
+                title: "Practice Bug Report",
+                category: "web",
+                time: "2.5 hours",
+                description: "Practice on public programs. Learn documentation best practices. Lab: Submit practice bug report",
+                resources: ["HackerOne", "Bugcrowd"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 63,
+                week: 5,
+                day: 34,
+                title: "DevSecOps Integration",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Study security in CI/CD pipelines. Learn SAST/DAST tools integration. Article: 'Shifting Security Left'",
+                resources: ["Azure DevOps", "SonarQube"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 64,
+                week: 5,
+                day: 34,
+                title: "Secure DevOps Pipeline",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Implement security gates. Setup automated security testing. Lab: Secure DevOps pipeline",
+                resources: ["Azure DevOps", "SonarQube", "OWASP ZAP"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 65,
+                week: 5,
+                day: 35,
+                title: "Specialization Review",
+                category: "project",
+                time: "5 hours",
+                description: "Capstone Project Planning: Choose specialization focus. Review all acquired skills. Begin capstone project development",
+                resources: ["All previous resources"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 66,
+                week: 6,
+                day: 36,
+                title: "Azure Fundamentals Prep",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Review AZ-900 exam objectives. Practice tests (free). Article: 'Azure Certification Roadmap'",
+                resources: ["Microsoft Learn", "Exam Ref AZ-900"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 67,
+                week: 6,
+                day: 36,
+                title: "AZ-900 Hands-on Labs",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Complete hands-on Azure labs. Take exam simulation. Lab: Complete all AZ-900 learning paths",
+                resources: ["Microsoft Learn", "Azure Free Tier"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 68,
+                week: 6,
+                day: 37,
+                title: "Security+ Preparation",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Review CompTIA Security+ domains. Practice questions (free resources). Article: 'CompTIA Security+ Career Benefits'",
+                resources: ["CompTIA", "Professor Messer"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 69,
+                week: 6,
+                day: 37,
+                title: "Security+ Practice Exam",
+                category: "cybersecurity",
+                time: "2.5 hours",
+                description: "Review security concepts. Take practice exam simulation. Lab: Security+ practical scenarios",
+                resources: ["CompTIA", "Practice Exams"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 70,
+                week: 6,
+                day: 38,
+                title: "Specialized Certifications",
+                category: "career",
+                time: "2.5 hours",
+                description: "Study CEH, OSCP overview (plan for future). Explore free certification alternatives. Article: 'Cybersecurity Certification Paths'",
+                resources: ["EC-Council", "Offensive Security"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 71,
+                week: 6,
+                day: 38,
+                title: "Certification Study Plan",
+                category: "career",
+                time: "2.5 hours",
+                description: "Develop GitHub portfolio. Learn professional project documentation. Lab: Certification study plan",
+                resources: ["GitHub", "Markdown"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 72,
+                week: 6,
+                day: 39,
+                title: "Advanced Cloud Projects",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Study multi-cloud security. Learn hybrid cloud scenarios. Article: 'Enterprise Cloud Security'",
+                resources: ["AWS", "GCP", "Azure"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 73,
+                week: 6,
+                day: 39,
+                title: "Advanced Cloud Security",
+                category: "cloud",
+                time: "2.5 hours",
+                description: "Implement complex architecture. Setup cross-platform integration. Lab: Advanced cloud security project",
+                resources: ["Azure", "AWS", "Terraform"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 74,
+                week: 6,
+                day: 40,
+                title: "Industry Networking",
+                category: "career",
+                time: "2.5 hours",
+                description: "Optimize LinkedIn for cybersecurity. Learn professional networking strategies. Article: 'Building a Cybersecurity Career'",
+                resources: ["LinkedIn", "Cybersecurity Communities"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 75,
+                week: 6,
+                day: 40,
+                title: "Community Engagement",
+                category: "career",
+                time: "2.5 hours",
+                description: "Join cybersecurity communities. Contribute to open source projects. Lab: Community engagement plan",
+                resources: ["GitHub", "Meetup", "Discord"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 76,
+                week: 6,
+                day: 41,
+                title: "Capstone Development",
+                category: "project",
+                time: "2.5 hours",
+                description: "Implement capstone project. Integrate all learned skills. Article: 'Portfolio Development for IT Careers'",
+                resources: ["All previous resources"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 77,
+                week: 6,
+                day: 41,
+                title: "Capstone Documentation",
+                category: "project",
+                time: "2.5 hours",
+                description: "Document project thoroughly. Prepare professional presentation. Lab: Capstone project milestone",
+                resources: ["Markdown", "Presentation Tools"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 78,
+                week: 6,
+                day: 42,
+                title: "Week 6 Assessment",
+                category: "project",
+                time: "5 hours",
+                description: "Complete capstone project. Take comprehensive skill assessment. Finalize portfolio",
+                resources: ["All previous resources"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 79,
+                week: 7,
+                day: 43,
+                title: "Resume Writing - Cloud Engineer",
+                category: "career",
+                time: "2.5 hours",
+                description: "Study cloud engineer resume templates. Learn technical skills presentation. Article: 'Technical Resume Writing Best Practices'",
+                resources: ["Resume Templates", "LinkedIn"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 80,
+                week: 7,
+                day: 43,
+                title: "Cloud Engineer Resume",
+                category: "career",
+                time: "2.5 hours",
+                description: "Optimize project descriptions. Quantify achievements. Lab: Draft cloud engineer resume",
+                resources: ["Resume Builders", "Examples"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 81,
+                week: 7,
+                day: 44,
+                title: "Resume Writing - Security Roles",
+                category: "career",
+                time: "2.5 hours",
+                description: "Study security analyst resume formatting. Learn certification and skills highlighting. Article: 'Cybersecurity Resume Guide'",
+                resources: ["Resume Templates", "LinkedIn"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 82,
+                week: 7,
+                day: 44,
+                title: "Security Specialist Resume",
+                category: "career",
+                time: "2.5 hours",
+                description: "Showcase security projects. Optimize keywords. Lab: Draft security specialist resume",
+                resources: ["Resume Builders", "Examples"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 83,
+                week: 7,
+                day: 45,
+                title: "LinkedIn & Professional Branding",
+                category: "career",
+                time: "2.5 hours",
+                description: "Optimize LinkedIn profile. Write professional summary. Article: 'LinkedIn for IT Professionals'",
+                resources: ["LinkedIn", "Profile Examples"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 84,
+                week: 7,
+                day: 45,
+                title: "Complete LinkedIn Profile",
+                category: "career",
+                time: "2.5 hours",
+                description: "Develop skill endorsements strategy. Create content sharing plan. Lab: Complete LinkedIn profile update",
+                resources: ["LinkedIn", "Content Ideas"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 85,
+                week: 7,
+                day: 46,
+                title: "Portfolio Development",
+                category: "career",
+                time: "2.5 hours",
+                description: "Organize GitHub portfolio. Learn project documentation standards. Article: 'Technical Portfolio Best Practices'",
+                resources: ["GitHub", "Markdown"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 86,
+                week: 7,
+                day: 46,
+                title: "Professional Portfolio",
+                category: "career",
+                time: "2.5 hours",
+                description: "Create demo videos. Write case studies. Lab: Professional portfolio website",
+                resources: ["GitHub Pages", "Video Tools"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 87,
+                week: 7,
+                day: 47,
+                title: "Cover Letter Templates",
+                category: "career",
+                time: "2.5 hours",
+                description: "Study role-specific cover letters. Learn company research techniques. Article: 'Personalized Cover Letter Writing'",
+                resources: ["Templates", "Examples"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 88,
+                week: 7,
+                day: 47,
+                title: "Customize Cover Letters",
+                category: "career",
+                time: "2.5 hours",
+                description: "Customize templates. Develop value proposition. Lab: Create multiple cover letter versions",
+                resources: ["Templates", "Examples"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 89,
+                week: 7,
+                day: 48,
+                title: "Application Strategy",
+                category: "career",
+                time: "2.5 hours",
+                description: "Optimize job search platforms. Understand application tracking systems. Article: 'Job Search Strategy for IT'",
+                resources: ["LinkedIn", "Indeed", "Glassdoor"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 90,
+                week: 7,
+                day: 48,
+                title: "Interview Preparation",
+                category: "career",
+                time: "2.5 hours",
+                description: "Learn interview preparation basics. Study technical interview strategies. Lab: Job application process setup",
+                resources: ["Interview Questions", "Practicing"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 91,
+                week: 7,
+                day: 49,
+                title: "Professional Preparation Review",
+                category: "project",
+                time: "5 hours",
+                description: "Review all professional materials. Incorporate peer feedback. Final polish and optimization",
+                resources: ["All previous resources"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 92,
+                week: 8,
+                day: 50,
+                title: "Technical Interview Prep - Cloud",
+                category: "career",
+                time: "2.5 hours",
+                description: "Study Azure technical interview questions. Prepare hands-on demonstrations. Article: 'Cloud Engineer Interview Guide'",
+                resources: ["Interview Questions", "Practice"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 93,
+                week: 8,
+                day: 50,
+                title: "Mock Technical Presentation",
+                category: "career",
+                time: "2.5 hours",
+                description: "Practice architecture design exercises. Solve problem-solving scenarios. Lab: Mock technical presentation",
+                resources: ["Practice", "Feedback"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 94,
+                week: 8,
+                day: 51,
+                title: "Technical Interview Prep - Security",
+                category: "career",
+                time: "2.5 hours",
+                description: "Study security interview question bank. Practice incident response scenarios. Article: 'Cybersecurity Interview Preparation'",
+                resources: ["Interview Questions", "Practice"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 95,
+                week: 8,
+                day: 51,
+                title: "Security Presentation",
+                category: "career",
+                time: "2.5 hours",
+                description: "Practice vulnerability assessment demos. Discuss ethical hacking. Lab: Security presentation preparation",
+                resources: ["Practice", "Feedback"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 96,
+                week: 8,
+                day: 52,
+                title: "Behavioral Interview Preparation",
+                category: "career",
+                time: "2.5 hours",
+                description: "Practice STAR method. Study common behavioral questions. Article: 'Behavioral Interview Success'",
+                resources: ["STAR Method", "Questions"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 97,
+                week: 8,
+                day: 52,
+                title: "Practice Interviews",
+                category: "career",
+                time: "2.5 hours",
+                description: "Develop personal stories. Articulate strengths and weaknesses. Lab: Record practice interviews",
+                resources: ["Recording Tools", "Feedback"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 98,
+                week: 8,
+                day: 53,
+                title: "Salary Negotiation & Offers",
+                category: "career",
+                time: "2.5 hours",
+                description: "Research market salaries. Learn negotiation strategies. Article: 'IT Salary Negotiation Guide'",
+                resources: ["Salary Data", "Negotiation Tips"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 99,
+                week: 8,
+                day: 53,
+                title: "Negotiation Role-play",
+                category: "career",
+                time: "2.5 hours",
+                description: "Evaluate benefits. Prepare counter-offers. Lab: Negotiation role-play",
+                resources: ["Role-play", "Scenarios"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 100,
+                week: 8,
+                day: 54,
+                title: "Industry Updates & Trends",
+                category: "career",
+                time: "2.5 hours",
+                description: "Study current cybersecurity landscape. Learn emerging cloud technologies. Article: 'Cybersecurity Trends 2025'",
+                resources: ["Industry News", "Blogs"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 101,
+                week: 8,
+                day: 54,
+                title: "Trend Analysis",
+                category: "career",
+                time: "2.5 hours",
+                description: "Follow industry news sources. Develop continuous learning plan. Lab: Trend analysis presentation",
+                resources: ["News Sources", "Learning Platforms"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 102,
+                week: 8,
+                day: 55,
+                title: "Final Mock Interviews",
+                category: "career",
+                time: "2.5 hours",
+                description: "Participate in full-length mock interviews. Incorporate real-time feedback. Article: 'Interview Day Success Tips'",
+                resources: ["Mock Interviews", "Feedback"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 103,
+                week: 8,
+                day: 55,
+                title: "Interview Simulation",
+                category: "career",
+                time: "2.5 hours",
+                description: "Manage interview anxiety. Prepare last-minute checklist. Lab: Interview simulation",
+                resources: ["Simulation", "Checklist"],
+                completed: false,
+                status: "not-started"
+            },
+            {
+                id: 104,
+                week: 8,
+                day: 56,
+                title: "Program Completion & Launch",
+                category: "project",
+                time: "5 hours",
+                description: "Final Portfolio Review. Job Application Launch. Celebration & Next Steps Planning",
+                resources: ["All previous resources"],
+                completed: false,
+                status: "not-started"
+            }
+        ];
+
+        // Global variables
+        let filteredWeek = 'all';
+        let filteredCategory = 'all';
+        let weeklyChart = null;
+        let skillChart = null;
+        let currentTaskId = null;
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTasks();
+            initCharts();
+            updateStats();
+            loadProgress();
+        });
+
+        // Render tasks based on filters
+        function renderTasks() {
+            const container = document.getElementById('task-container');
+            container.innerHTML = '';
+
+            let filteredTasks = roadmapData;
+
+            if (filteredWeek !== 'all') {
+                filteredTasks = filteredTasks.filter(task => task.week == filteredWeek);
+            }
+
+            if (filteredCategory !== 'all') {
+                filteredTasks = filteredTasks.filter(task => task.category === filteredCategory);
+            }
+
+            // Group tasks by week and day
+            const tasksByWeek = {};
+            filteredTasks.forEach(task => {
+                if (!tasksByWeek[task.week]) {
+                    tasksByWeek[task.week] = {};
+                }
+                if (!tasksByWeek[task.week][task.day]) {
+                    tasksByWeek[task.week][task.day] = [];
+                }
+                tasksByWeek[task.week][task.day].push(task);
+            });
+
+            // Render tasks
+            Object.keys(tasksByWeek).sort((a, b) => a - b).forEach(week => {
+                const weekDiv = document.createElement('div');
+                weekDiv.className = 'bg-white rounded-2xl shadow-lg p-6 border border-slate-200';
+                
+                const weekHeader = document.createElement('h2');
+                weekHeader.className = 'text-2xl font-bold text-slate-800 mb-4 flex items-center';
+                weekHeader.innerHTML = `
+                    <span class="week-indicator bg-week${week} mr-3"></span>
+                    Week ${week}
+                `;
+                weekDiv.appendChild(weekHeader);
+
+                const days = tasksByWeek[week];
+                Object.keys(days).sort((a, b) => a - b).forEach(day => {
+                    const dayHeader = document.createElement('h3');
+                    dayHeader.className = 'text-lg font-semibold text-slate-700 mb-3 mt-4 border-b border-slate-200 pb-2';
+                    dayHeader.textContent = `Day ${day}`;
+                    weekDiv.appendChild(dayHeader);
+
+                    const dayTasks = days[day];
+                    const dayTaskGrid = document.createElement('div');
+                    dayTaskGrid.className = 'grid grid-cols-1 lg:grid-cols-2 gap-4';
+                    
+                    dayTasks.forEach(task => {
+                        const taskCard = createTaskCard(task);
+                        dayTaskGrid.appendChild(taskCard);
+                    });
+
+                    weekDiv.appendChild(dayTaskGrid);
+                });
+
+                container.appendChild(weekDiv);
+            });
+
+            updateProgress();
+        }
+
+        // Create a task card
+        function createTaskCard(task) {
+            const card = document.createElement('div');
+            card.className = `task-card bg-slate-50 p-4 rounded-xl border-l-4 transition-all duration-300 cursor-pointer hover:shadow-md ${
+                task.completed ? 'completed bg-opacity-70 border-green-500' : 
+                task.status === 'in-progress' ? 'border-yellow-500' : 'border-slate-300'
+            }`;
+            card.dataset.taskId = task.id;
+            card.onclick = (e) => {
+                if (!e.target.classList.contains('task-checkbox')) {
+                    openTaskModal(task.id);
+                }
+            };
+
+            // Determine category color
+            let categoryColor = 'bg-slate-200 text-slate-800';
+            switch(task.category) {
+                case 'cybersecurity':
+                    categoryColor = 'bg-red-100 text-red-800';
+                    break;
+                case 'cloud':
+                    categoryColor = 'bg-blue-100 text-blue-800';
+                    break;
+                case 'web':
+                    categoryColor = 'bg-green-100 text-green-800';
+                    break;
+                case 'project':
+                    categoryColor = 'bg-purple-100 text-purple-800';
+                    break;
+                case 'career':
+                    categoryColor = 'bg-yellow-100 text-yellow-800';
+                    break;
+            }
+
+            // Format resources
+            const resourcesHTML = task.resources.map(resource => 
+                `<span class="bg-white text-slate-700 px-2 py-1 rounded text-xs">${resource}</span>`
+            ).join('');
+
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-xs font-medium px-2 py-1 rounded ${categoryColor}">
+                        ${task.category.charAt(0).toUpperCase() + task.category.slice(1)}
+                    </span>
+                    <span class="text-sm text-slate-500">
+                        <i class="far fa-clock mr-1"></i> ${task.time}
+                    </span>
+                </div>
+                <h3 class="font-semibold text-slate-800 mb-2">${task.title}</h3>
+                <div class="text-sm text-slate-600 mb-3 line-clamp-2">${task.description}</div>
+                <div class="flex flex-wrap gap-1 mb-3">
+                    ${resourcesHTML}
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" class="task-checkbox h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 mr-2 cursor-pointer" 
+                        ${task.completed ? 'checked' : ''} onclick="toggleTaskCompletion(${task.id}, event)">
+                    <span class="text-sm text-slate-500">
+                        ${task.completed ? 'Completed' : 
+                          task.status === 'in-progress' ? 'In Progress' : 'Not Started'}
+                    </span>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Toggle task completion
+        function toggleTaskCompletion(taskId, event) {
+            event.stopPropagation();
+            const task = roadmapData.find(t => t.id === taskId);
+            if (task) {
+                task.completed = !task.completed;
+                task.status = task.completed ? 'completed' : task.status;
+                updateTaskInDOM(taskId);
+                updateProgress();
+                updateStats();
+                checkSuccessMetrics();
+            }
+        }
+
+        // Update a single task in the DOM
+        function updateTaskInDOM(taskId) {
+            const element = document.querySelector(`[data-task-id="${taskId}"]`);
+            if (element) {
+                const task = roadmapData.find(t => t.id === taskId);
+                element.className = `task-card bg-slate-50 p-4 rounded-xl border-l-4 transition-all duration-300 cursor-pointer hover:shadow-md ${
+                    task.completed ? 'completed bg-opacity-70 border-green-500' : 
+                    task.status === 'in-progress' ? 'border-yellow-500' : 'border-slate-300'
+                }`;
+                
+                const checkbox = element.querySelector('.task-checkbox');
+                if (checkbox) {
+                    checkbox.checked = task.completed;
+                }
+                
+                const statusText = element.querySelector('.text-sm.text-slate-500:last-child');
+                if (statusText) {
+                    statusText.textContent = task.completed ? 'Completed' : 
+                                           task.status === 'in-progress' ? 'In Progress' : 'Not Started';
+                }
+            }
+        }
+
+        // Filter tasks by week
+        function filterWeek(week) {
+            filteredWeek = week;
+            document.querySelectorAll('.week-filter').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent === `Week ${week}`) {
+                    btn.classList.add('active');
+                }
+            });
+            document.querySelector('button[onclick="filterWeek(\'all\')"]').classList.toggle('active', week === 'all');
+            renderTasks();
+        }
+
+        // Filter tasks by category
+        function filterCategory(category) {
+            filteredCategory = category;
+            document.querySelectorAll('.category-filter').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase().includes(category)) {
+                    btn.classList.add('active');
+                }
+            });
+            document.querySelector('button[onclick="filterCategory(\'all\')"]').classList.toggle('active', category === 'all');
+            renderTasks();
+        }
+
+        // Initialize charts
+        function initCharts() {
+            // Weekly Progress Chart
+            const weeklyCtx = document.getElementById('weeklyProgressChart').getContext('2d');
+            weeklyChart = new Chart(weeklyCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8'],
+                    datasets: [{
+                        label: 'Completed Tasks',
+                        data: [0, 0, 0, 0, 0, 0, 0, 0],
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 4
+                    }, {
+                        label: 'Total Tasks',
+                        data: [13, 13, 13, 13, 13, 13, 13, 13],
+                        backgroundColor: 'rgba(156, 163, 175, 0.3)',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.parsed.y} of 13 tasks completed`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 13,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Skill Progress Chart
+            const skillCtx = document.getElementById('skillProgressChart').getContext('2d');
+            skillChart = new Chart(skillCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Cloud Engineering', 'Cybersecurity', 'Web Security', 'Hands-on Labs', 'Career Development'],
+                    datasets: [{
+                        label: 'Skill Proficiency',
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: '#3b82f6',
+                        pointBackgroundColor: '#3b82f6',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#3b82f6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 10
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Proficiency: ${context.parsed.r}/10`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            updateProgress();
+        }
+
+        // Update progress metrics
+        function updateProgress() {
+            // Calculate overall progress
+            const totalTasks = roadmapData.length;
+            const completedTasks = roadmapData.filter(t => t.completed).length;
+            const progressPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+            // Update progress ring
+            const circle = document.getElementById('progress-circle');
+            const offset = 502.4 - (502.4 * progressPercent / 100);
+            circle.style.strokeDashoffset = offset;
+
+            // Update progress text
+            document.getElementById('progress-text').textContent = `${progressPercent}%`;
+            document.getElementById('days-completed').textContent = `${completedTasks} of ${totalTasks} tasks completed`;
+
+            // Update weekly chart
+            const weeklyData = [0, 0, 0, 0, 0, 0, 0, 0];
+            roadmapData.forEach(task => {
+                if (task.completed) {
+                    weeklyData[task.week - 1]++;
+                }
+            });
+            
+            if (weeklyChart) {
+                weeklyChart.data.datasets[0].data = weeklyData;
+                weeklyChart.update();
+            }
+
+            // Update skill chart
+            const skillData = calculateSkillProgress();
+            if (skillChart) {
+                skillChart.data.datasets[0].data = skillData;
+                skillChart.update();
+            }
+
+            // Update success metrics
+            checkSuccessMetrics();
+        }
+
+        // Calculate skill progress
+        function calculateSkillProgress() {
+            // Count completed tasks in each category
+            const cloudTasks = roadmapData.filter(t => t.category === 'cloud').length;
+            const cloudCompleted = roadmapData.filter(t => t.category === 'cloud' && t.completed).length;
+            
+            const cyberTasks = roadmapData.filter(t => t.category === 'cybersecurity').length;
+            const cyberCompleted = roadmapData.filter(t => t.category === 'cybersecurity' && t.completed).length;
+            
+            const webTasks = roadmapData.filter(t => t.category === 'web').length;
+            const webCompleted = roadmapData.filter(t => t.category === 'web' && t.completed).length;
+            
+            const labTasks = roadmapData.filter(t => t.category === 'project').length;
+            const labCompleted = roadmapData.filter(t => t.category === 'project' && t.completed).length;
+            
+            const careerTasks = roadmapData.filter(t => t.category === 'career').length;
+            const careerCompleted = roadmapData.filter(t => t.category === 'career' && t.completed).length;
+
+            // Convert to scale of 0-10
+            return [
+                Math.round((cloudCompleted / cloudTasks) * 10) || 0,
+                Math.round((cyberCompleted / cyberTasks) * 10) || 0,
+                Math.round((webCompleted / webTasks) * 10) || 0,
+                Math.round((labCompleted / labTasks) * 10) || 0,
+                Math.round((careerCompleted / careerTasks) * 10) || 0
+            ];
+        }
+
+        // Check success metrics
+        function checkSuccessMetrics() {
+            const totalTasks = roadmapData.length;
+            const completedTasks = roadmapData.filter(t => t.completed).length;
+            const progressPercent = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+            // 15+ projects in portfolio
+            const projectsCompleted = roadmapData.filter(t => t.category === 'project' && t.completed).length;
+            document.getElementById('metric-project').className = projectsCompleted >= 6 ? 
+                'fas fa-check-circle text-green-500 ml-auto' : 'far fa-circle text-slate-300 ml-auto';
+
+            // AZ-900 Certified
+            const az900Completed = roadmapData.filter(t => 
+                (t.title.includes('AZ-900') || t.title.includes('Azure Fundamentals')) && t.completed).length >= 2;
+            document.getElementById('metric-cert').className = az900Completed ? 
+                'fas fa-check-circle text-green-500 ml-auto' : 'far fa-circle text-slate-300 ml-auto';
+
+            // Professional resume for each target role
+            const resumeCompleted = roadmapData.filter(t => 
+                t.title.includes('Resume') && t.completed).length >= 4;
+            document.getElementById('metric-resume').className = resumeCompleted ? 
+                'fas fa-check-circle text-green-500 ml-auto' : 'far fa-circle text-slate-300 ml-auto';
+
+            // LinkedIn optimized
+            const linkedinCompleted = roadmapData.filter(t => 
+                t.title.includes('LinkedIn') && t.completed).length >= 2;
+            document.getElementById('metric-linkedin').className = linkedinCompleted ? 
+                'fas fa-check-circle text-green-500 ml-auto' : 'far fa-circle text-slate-300 ml-auto';
+
+            // GitHub portfolio
+            const githubCompleted = roadmapData.filter(t => 
+                (t.title.includes('GitHub') || t.title.includes('portfolio')) && t.completed).length >= 3;
+            document.getElementById('metric-github').className = githubCompleted ? 
+                'fas fa-check-circle text-green-500 ml-auto' : 'far fa-circle text-slate-300 ml-auto';
+
+            // Mock interviews
+            const interviewCompleted = roadmapData.filter(t => 
+                t.title.includes('Interview') && t.completed).length >= 5;
+            document.getElementById('metric-interview').className = interviewCompleted ? 
+                'fas fa-check-circle text-green-500 ml-auto' : 'far fa-circle text-slate-300 ml-auto';
+        }
+
+        // Update statistics
+        function updateStats() {
+            const totalTasks = roadmapData.length;
+            const completedTasks = roadmapData.filter(t => t.completed).length;
+            const inProgressTasks = roadmapData.filter(t => t.status === 'in-progress' && !t.completed).length;
+            const daysLeft = Math.ceil((totalTasks - completedTasks) / 2); // Approximate days based on 2 tasks per day
+
+            document.getElementById('total-tasks').textContent = totalTasks;
+            document.getElementById('completed-tasks').textContent = completedTasks;
+            document.getElementById('in-progress').textContent = inProgressTasks;
+            document.getElementById('days-left').textContent = daysLeft;
+        }
+
+        // Open task modal
+        function openTaskModal(taskId) {
+            currentTaskId = taskId;
+            const task = roadmapData.find(t => t.id === taskId);
+            
+            if (task) {
+                document.getElementById('modal-title').textContent = task.title;
+                
+                // Format description with line breaks
+                const formattedDescription = task.description.replace(/\./g, '.<br><br>');
+                
+                document.getElementById('modal-content').innerHTML = `
+                    <div class="mb-4">
+                        <span class="text-sm font-medium px-2 py-1 rounded bg-slate-100 text-slate-800 mb-2 inline-block">
+                            Week ${task.week}, Day ${task.day}
+                        </span>
+                    </div>
+                    <div class="mb-4">
+                        <span class="font-medium text-slate-700">Category:</span>
+                        <span class="ml-2 px-2 py-1 rounded text-sm ${
+                            task.category === 'cybersecurity' ? 'bg-red-100 text-red-800' :
+                            task.category === 'cloud' ? 'bg-blue-100 text-blue-800' :
+                            task.category === 'web' ? 'bg-green-100 text-green-800' :
+                            task.category === 'project' ? 'bg-purple-100 text-purple-800' :
+                            'bg-yellow-100 text-yellow-800'
+                        }">
+                            ${task.category.charAt(0).toUpperCase() + task.category.slice(1)}
+                        </span>
+                    </div>
+                    <div class="mb-4">
+                        <span class="font-medium text-slate-700">Time Required:</span>
+                        <span class="ml-2 text-slate-600">${task.time}</span>
+                    </div>
+                    <div class="mb-4">
+                        <span class="font-medium text-slate-700">Description:</span>
+                        <p class="mt-1 text-slate-600 leading-relaxed">${formattedDescription}</p>
+                    </div>
+                    <div>
+                        <span class="font-medium text-slate-700">Resources:</span>
+                        <div class="mt-1 flex flex-wrap gap-2">
+                            ${task.resources.map(r => 
+                                `<span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">${r}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('task-status').value = task.status;
+                document.getElementById('task-modal').classList.remove('hidden');
+            }
+        }
+
+        // Close task modal
+        function closeModal() {
+            document.getElementById('task-modal').classList.add('hidden');
+            currentTaskId = null;
+        }
+
+        // Save task changes
+        function saveTaskChanges() {
+            if (currentTaskId) {
+                const task = roadmapData.find(t => t.id === currentTaskId);
+                const newStatus = document.getElementById('task-status').value;
+                
+                if (task) {
+                    task.status = newStatus;
+                    task.completed = newStatus === 'completed';
+                    
+                    updateTaskInDOM(currentTaskId);
+                    updateProgress();
+                    updateStats();
+                    closeModal();
+                }
+            }
+        }
+
+        // Reset all progress
+        function resetProgress() {
+            if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+                roadmapData.forEach(task => {
+                    task.completed = false;
+                    task.status = 'not-started';
+                });
+                
+                renderTasks();
+                updateProgress();
+                updateStats();
+                saveProgress();
+            }
+        }
+
+        // Mark all tasks as complete
+        function markAllComplete() {
+            if (confirm('Mark all tasks as complete? This is intended for demonstration purposes.')) {
+                roadmapData.forEach(task => {
+                    task.completed = true;
+                    task.status = 'completed';
+                });
+                
+                renderTasks();
+                updateProgress();
+                updateStats();
+                saveProgress();
+            }
+        }
+
+        // Save progress to localStorage
+        function saveProgress() {
+            try {
+                const progressData = roadmapData.map(task => ({
+                    id: task.id,
+                    completed: task.completed,
+                    status: task.status
+                }));
+                
+                localStorage.setItem('roadmapProgress', JSON.stringify(progressData));
+                alert('Progress saved successfully!');
+            } catch (e) {
+                alert('Failed to save progress. Your browser may not support localStorage.');
+            }
+        }
+
+        // Load progress from localStorage
+        function loadProgress() {
+            try {
+                const saved = localStorage.getItem('roadmapProgress');
+                if (saved) {
+                    const progressData = JSON.parse(saved);
+                    
+                    progressData.forEach(savedTask => {
+                        const task = roadmapData.find(t => t.id === savedTask.id);
+                        if (task) {
+                            task.completed = savedTask.completed;
+                            task.status = savedTask.status;
+                        }
+                    });
+                    
+                    renderTasks();
+                    updateProgress();
+                    updateStats();
+                    alert('Progress loaded successfully!');
+                }
+            } catch (e) {
+                alert('Failed to load progress. Your browser may not support localStorage or the data is corrupted.');
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('task-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Add keyboard support
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
